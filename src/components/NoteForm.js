@@ -1,6 +1,23 @@
-import React from "react";
+import React, { useState } from "react";
 
-function NoteForm({ addNote, newNote, handleNoteChange }) {
+function NoteForm({ createNote }) {
+  const [newNote, setNewNote] = useState("");
+
+  const handleNoteChange = ({ target: { value } }) => {
+    setNewNote(value);
+  };
+
+  const addNote = (event) => {
+    event.preventDefault();
+    createNote({
+      content: newNote,
+      date: new Date().toISOString(),
+      important: Math.random() > 0.5,
+    });
+
+    setNewNote("");
+  };
+
   return (
     <div>
       <h2>Create a new note</h2>
