@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useImperativeHandle, useState } from "react";
 
-function Togglable({ children, buttonLabel }) {
+function Togglable({ children, buttonLabel }, refs) {
   const [visible, setVisible] = useState(false);
 
   const hideWhenVisible = { display: visible ? "none" : "" };
@@ -9,6 +9,12 @@ function Togglable({ children, buttonLabel }) {
   const toggleVisibility = () => {
     setVisible((prevValue) => !prevValue);
   };
+
+  useImperativeHandle(refs, () => {
+    return {
+      toggleVisibility,
+    };
+  });
 
   return (
     <div>
@@ -23,4 +29,4 @@ function Togglable({ children, buttonLabel }) {
   );
 }
 
-export default Togglable;
+export default React.forwardRef(Togglable);

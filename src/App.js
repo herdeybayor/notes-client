@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 import Note from "./components/Note";
 import Notification from "./components/Notification";
@@ -16,6 +16,8 @@ const App = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
+  const loginFormRef = useRef();
+  const noteFormRef = useRef();
 
   useEffect(() => {
     noteService.getAll().then((initialNotes) => {
@@ -52,9 +54,32 @@ const App = () => {
   };
 
   const addNote = (noteObject) => {
-    noteService.create(noteObject).then((returnedNote) => {
-      setNotes(notes.concat(returnedNote));
-    });
+    noteService
+      .create(noteObject)
+      .then((returnedNote) => {
+        noteFormRef.current.toggleVisibility();
+        setNotes(notes.concat(returnedNote));
+      })
+      .catch((exception) => {
+        if (exception.response.status === 401) {
+          setErrorMessage(exception.response.data.error);
+          console.log(exception);
+          setTimeout(() => {
+            setErrorMessage(null);
+          }, 5000);
+          setUser(null);
+          window.localStorage.removeItem("loggedNoteAppUser");
+          setTimeout(() => {
+            loginFormRef.current.toggleVisibility();
+          }, 1000);
+        } else {
+          setErrorMessage(exception.response.data.error);
+          console.log(exception);
+          setTimeout(() => {
+            setErrorMessage(null);
+          }, 5000);
+        }
+      });
   };
 
   const toggleImportanceOf = (id) => {
@@ -85,7 +110,7 @@ const App = () => {
       <Notification message={errorMessage} />
 
       {!user ? (
-        <Togglable buttonLabel={"login"}>
+        <Togglable buttonLabel={"login"} ref={loginFormRef}>
           <LoginForm
             username={username}
             password={password}
@@ -97,7 +122,7 @@ const App = () => {
       ) : (
         <>
           <p>{user.name} logged-in</p>
-          <Togglable buttonLabel="new note">
+          <Togglable buttonLabel="new note" ref={noteFormRef}>
             <NoteForm createNote={addNote} />
           </Togglable>
         </>
