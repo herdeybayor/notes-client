@@ -22,7 +22,12 @@ function NoteForm({ createNote }) {
     <div>
       <h2>Create a new note</h2>
       <form onSubmit={addNote}>
-        <input value={newNote} onChange={handleNoteChange} />
+        <input
+          value={newNote}
+          onChange={handleNoteChange}
+          placeholder="write here note content"
+          id="note-input"
+        />
         <button type="submit">save</button>
       </form>
     </div>
